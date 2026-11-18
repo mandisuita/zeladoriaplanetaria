@@ -228,18 +228,19 @@ nav a[aria-current="location"]{color:var(--acc);text-decoration:underline;text-u
         <label for="evComment">O que foi mais útil ou o que você sugere melhorar? (opcional)</label>
         <textarea id="evComment" rows="4" maxlength="1000" placeholder="Não inclua nomes de pessoas, estudantes ou da escola."></textarea>
       </div>
-      <label class="ev-consent"><input id="evConsent" type="checkbox" required><span>Concordo em registrar esta avaliação anônima neste navegador. Sei que ela não será enviada automaticamente ao autor do guia.</span></label>
-      <button class="btn s ef-p" type="submit">Registrar minha avaliação</button>
+      <label class="ev-consent"><input id="evConsent" type="checkbox" required><span>Concordo em enviar esta avaliação anônima ao responsável pelo guia para fins de melhoria e análise. Não inclua dados pessoais nos comentários.</span></label>
+      <div id="turnstile-guia" aria-label="Verificação de segurança"></div>
+       <button class="btn s ef-p" type="submit">Enviar minha avaliação</button>
       <p class="ev-status" id="evStatus" aria-live="polite"></p>
     </form>
     <aside class="card ev-card" aria-labelledby="evSummaryTitle">
       <h3 id="evSummaryTitle">Resumo neste navegador</h3>
-      <p class="ev-intro">As médias e a quantidade de respostas válidas são calculadas por afirmação. “Não se aplica” não entra nas médias.</p>
+      <p class="ev-intro">Este resumo apresenta somente as avaliações armazenadas neste navegador. “Não se aplica” não entra nas médias.</p>
       <p id="evCount" aria-live="polite"></p>
       <ul class="ev-summary" id="evSummary"></ul>
       <div class="ev-actions">
         <button class="btn s" id="evExport" type="button">Exportar respostas CSV</button>
-        <button class="btn s" id="evClear" type="button">Apagar respostas deste navegador</button>
+        <button class="btn s" id="evClear" type="button">Apagar cópias deste navegador</button>
       </div>
       <p class="ev-ethics">Para usar as respostas como dados do TCC, valide o questionário, o texto de consentimento e os procedimentos de pesquisa com sua orientação e instituição antes de convidar participantes.</p>
     </aside>
@@ -259,7 +260,7 @@ nav a[aria-current="location"]{color:var(--acc);text-decoration:underline;text-u
 <div class="fb"><input type="search" id="q" placeholder="Buscar por palavra (ex.: mapa, dados, boletim)" aria-label="Buscar atividades — atalho Ctrl+K ou ⌘K" title="Atalho: Ctrl+K ou ⌘K">
 <div class="row favtools"><button class="btn s" id="favOnly" type="button" aria-pressed="false">☆ Mostrar favoritas</button><span class="leg" id="favStatus" aria-live="polite"></span></div>
 <div class="row"><span class="lb">Nível</span><span id="fn" class="row"></span></div><div class="row"><span class="lb">Ano / série</span><span id="fa" class="row"></span></div><div class="row"><span class="lb">Etapa</span><span id="fe" class="row"></span></div></div>
-<p class="cnt" id="cnt" aria-live="polite"></p><div id="ga"></div><section id="ferramentas"><div class="sh"><h2>Ferramentas de campo e de aula</h2><p>Contador digital de ciência cidadã que funciona sem internet, análise dos dados, fichas imprimíveis e espaço para avaliar as atividades. Tudo fica salvo no seu aparelho.</p></div>
+<p class="cnt" id="cnt" aria-live="polite"></p><div id="ga"></div><section id="ferramentas"><div class="sh"><h2>Ferramentas de campo e de aula</h2><p>Contador digital de ciência cidadã que funciona sem internet, análise dos dados, fichas imprimíveis e espaço para avaliar as atividades. As coletas continuam salvas no aparelho; as avaliações podem ser enviadas ao responsável pelo guia.</p></div>
 <div class="tabs" id="eftabs" role="group" aria-label="Ferramentas"><button class="btn s" data-ef="c" aria-pressed="true">📍 Contador de campo</button><button class="btn s" data-ef="a" aria-pressed="false">📊 Análise da turma</button><button class="btn s" data-ef="f" aria-pressed="false">🖨️ Fichas e materiais</button><button class="btn s" data-ef="o" aria-pressed="false">⭐ Avaliar atividade</button></div>
 
 <div class="ef-pn on" id="ef-c"><div class="ef-two"><div class="card ef-c"><h3>Contador de campo</h3><p class="ef-lead">Toque na categoria a cada item encontrado. Os conjuntos seguem as atividades 3, 10 e 17.</p>
@@ -284,8 +285,9 @@ nav a[aria-current="location"]{color:var(--acc);text-decoration:underline;text-u
 <div class="ef-f"><label for="efoc">Tipo de escola</label><select id="efoc"><option>costeira</option><option>urbana</option><option>rural</option><option>outro bioma</option></select></div>
 <div class="ef-f"><label for="efox">Comentário, adaptação ou sugestão</label><textarea id="efox" rows="4"></textarea></div>
 <div class="ef-f"><label for="efon">Seu nome (opcional)</label><input id="efon"></div>
+<div id="turnstile-atividade" aria-label="Verificação de segurança"></div>
 <button class="btn s ef-p" id="efosend" type="button">Enviar avaliação</button><p class="ef-msg" id="efomsg" aria-live="polite"></p></div>
-<div class="card ef-c"><h3>Avaliações registradas</h3><div id="efosum"></div><div class="ef-row"><button class="btn s" id="efocsv" type="button">Exportar CSV</button></div><div id="efolist"></div></div></div></div>
+<div class="card ef-c"><h3>Avaliações neste navegador</h3><div id="efosum"></div><div class="ef-row"><button class="btn s" id="efocsv" type="button">Exportar CSV</button></div><div id="efolist"></div></div></div></div>
 </section></section>
 <!-- ===== LABORATÓRIO DE CIÊNCIA CIDADÃ (apenas protocolos) ===== -->
 <style>
@@ -306,6 +308,49 @@ nav a[aria-current="location"]{color:var(--acc);text-decoration:underline;text-u
   <div class="lb-g" id="lb-rede"></div>
 </section>
 
+<script>
+/* Integração segura: somente avaliações, sem acesso direto às tabelas. */
+window.maretorioTurnstileIds = {};
+window.maretorioTurnstileOnload = function () {
+  if (!window.turnstile) return;
+  window.maretorioTurnstileIds.guia = turnstile.render("#turnstile-guia", {
+    sitekey: "0x4AAAAAAGGcX0w1CZp9nsto", theme: "auto"
+  });
+  window.maretorioRenderAtividadeTurnstile = function () {
+    if (window.maretorioTurnstileIds.atividade !== undefined) return;
+    const el = document.getElementById("turnstile-atividade");
+    if (el && el.getClientRects().length) {
+      window.maretorioTurnstileIds.atividade = turnstile.render(el, {
+        sitekey: "0x4AAAAAAGGcX0w1CZp9nsto", theme: "auto"
+      });
+    }
+  };
+  window.maretorioRenderAtividadeTurnstile();
+};
+window.maretorioEnviarAvaliacao = async function (tipo, dados) {
+  const id = window.maretorioTurnstileIds[tipo];
+  if (id === undefined || !window.turnstile) throw new Error("A verificação de segurança ainda não carregou. Aguarde e tente novamente.");
+  const token = turnstile.getResponse(id);
+  if (!token) throw new Error("Conclua a verificação de segurança antes de enviar.");
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    let response;
+    try {
+      response = await fetch("https://kwmwkscqzqmjcyjrpfmy.supabase.co/functions/v1/receber-avaliacao", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...dados, tipo, turnstile_token: token }),
+        signal: controller.signal
+      });
+    } finally { clearTimeout(timeout); }
+    let result = {};
+    try { result = await response.json(); } catch {}
+    if (!response.ok) throw new Error(result.mensagem || "Não foi possível enviar a avaliação.");
+    return result;
+  } finally { turnstile.reset(id); }
+};
+</script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=maretorioTurnstileOnload&render=explicit" async defer></script>
 <script>
 (()=>{
 const H=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -639,7 +684,7 @@ const opts=(o,v)=>Object.entries(o).map(([k,l])=>`<option value="${k}"${k===v?" 
 q("#efoa").innerHTML=TT.map((t,i)=>`<option value="${i+1}">${i+1}. ${esc(t)} (${SER(i)} · ${ETP[i%7]})</option>`).join("");
 document.body.insertAdjacentHTML("beforeend",'<dialog id="efx"><div class="mb"><h3 id="efxt"></h3><textarea id="efxa" rows="12" readonly style="margin-top:.8rem"></textarea></div><div class="mf"><button class="btn s" id="efxc">Copiar</button><button class="btn s" id="efxd">Baixar</button><button class="btn s" onclick="this.closest(\'dialog\').close()">Fechar</button></div></dialog><dialog id="efp"><div class="mb ef-fo" id="efpb"></div><div class="mf"><button class="btn s" onclick="print()">Imprimir</button><button class="btn s" onclick="this.closest(\'dialog\').close()">Fechar</button></div></dialog>');
 /* abas */
-function aba(k){document.querySelectorAll("[data-ef]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ef===k));document.querySelectorAll(".ef-pn").forEach(p=>p.classList.toggle("on",p.id==="ef-"+k));render()}
+function aba(k){document.querySelectorAll("[data-ef]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ef===k));document.querySelectorAll(".ef-pn").forEach(p=>p.classList.toggle("on",p.id==="ef-"+k));render();if(k==="o")setTimeout(()=>window.maretorioRenderAtividadeTurnstile?.(),0)}
 q("#eftabs").onclick=e=>{const b=e.target.closest("[data-ef]");if(b)aba(b.dataset.ef)};
 /* exportar */
 let xn="dados.csv";
@@ -695,9 +740,19 @@ let nota=0;const TG=["Muito claro de aplicar","Precisei adaptar","Faltou tempo",
 q("#efot").innerHTML=TG.map(t=>`<button class="ef-ch" type="button" aria-pressed="false">${t}</button>`).join("");
 q("#efot").onclick=e=>{const b=e.target.closest(".ef-ch");if(b)b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true")};
 q("#efos").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;nota=+b.dataset.s;[...q("#efos").children].forEach((x,i)=>{x.classList.toggle("on",i<nota);x.setAttribute("aria-checked",i+1===nota)})};
-q("#efosend").onclick=()=>{if(!nota){q("#efomsg").textContent="Escolha uma nota de 1 a 5 estrelas.";return}
- rev.push({t:Date.now(),a:+q("#efoa").value,n:nota,tags:[...q("#efot").querySelectorAll('[aria-pressed="true"]')].map(x=>x.textContent),ctx:q("#efoc").value,tx:q("#efox").value.trim(),nome:q("#efon").value.trim()});
- const ok=sa("zp_rev",rev);q("#efomsg").textContent=ok?"Obrigado! Avaliação registrada.":"Registrada nesta sessão, mas o navegador não permitiu salvar.";q("#efox").value="";nota=0;[...q("#efos").children].forEach(x=>x.classList.remove("on"));render()};
+q("#efosend").onclick=async()=>{
+ if(!nota){q("#efomsg").textContent="Escolha uma nota de 1 a 5 estrelas.";return}
+ const button=q("#efosend"), status=q("#efomsg");
+ const registro={t:Date.now(),a:+q("#efoa").value,n:nota,tags:[...q("#efot").querySelectorAll('[aria-pressed="true"]')].map(x=>x.textContent),ctx:q("#efoc").value,tx:q("#efox").value.trim(),nome:q("#efon").value.trim()};
+ button.disabled=true;status.textContent="Enviando avaliação...";
+ try{
+  await window.maretorioEnviarAvaliacao("atividade",{atividade_id:registro.a,nota:registro.n,marcadores:registro.tags,tipo_escola:registro.ctx,comentario:registro.tx,nome:registro.nome});
+  rev.push(registro);sa("zp_rev",rev);
+  status.textContent="Obrigado! Avaliação enviada com sucesso ao Maretório Digital.";
+  q("#efox").value="";nota=0;[...q("#efos").children].forEach(x=>{x.classList.remove("on");x.setAttribute("aria-checked","false")});render();
+ }catch(error){status.textContent=error.message||"Falha ao enviar. Tente novamente."}
+ finally{button.disabled=false}
+};
 q("#efocsv").onclick=()=>exp(csv([["data","atividade","titulo","nota","tags","escola","comentario","nome"],...rev.map(r=>[new Date(r.t).toISOString(),r.a,TT[r.a-1],r.n,(r.tags||[]).join("; "),r.ctx,r.tx,r.nome])]),"avaliacoes-zeladoria.csv","Avaliações (CSV)");
 /* avaliação geral do guia */
 const GUIDE_QUESTIONS=[
@@ -732,18 +787,22 @@ function renderGuideSummary(){
   return `<li><strong>${esc(item.text)}</strong><small>Média ${average}/5 · ${values.length} ${values.length===1?"resposta válida":"respostas válidas"} · ${positive}% marcaram 4 ou 5.</small></li>`;
  }).join("");
 }
-guideForm.onsubmit=event=>{
+guideForm.onsubmit=async event=>{
  event.preventDefault();
  const data=new FormData(guideForm),answers={};
  GUIDE_QUESTIONS.forEach(item=>answers[item.id]=data.get(`ev-${item.id}`));
  if(!Object.values(answers).some(value=>["1","2","3","4","5"].includes(value))){q("#evStatus").textContent="Marque ao menos uma nota de 1 a 5; as demais podem ser N/A.";return}
  const response={date:new Date().toISOString().slice(0,10),stage:q("#evStage").value,used:q("#evUse").value,answers,comment:q("#evComment").value.trim()};
- guideResponses.push(response);
- let saved=false;
- try{localStorage.setItem("zp_guide_survey",JSON.stringify(guideResponses));saved=true}catch(error){saved=false}
- guideForm.reset();
- renderGuideSummary();
- q("#evStatus").textContent=saved?"Avaliação registrada neste navegador. Para enviá-la ao TCC, exporte o CSV.":"Não foi possível salvar neste navegador; a resposta ficará disponível para exportação somente enquanto esta página estiver aberta.";
+ const button=guideForm.querySelector('[type="submit"]');button.disabled=true;
+ q("#evStatus").textContent="Enviando avaliação...";
+ try{
+  await window.maretorioEnviarAvaliacao("guia",{etapa_ensino:response.stage,utilizacao:response.used,respostas:response.answers,comentario:response.comment});
+  guideResponses.push(response);
+  try{localStorage.setItem("zp_guide_survey",JSON.stringify(guideResponses))}catch(error){}
+  guideForm.reset();renderGuideSummary();
+  q("#evStatus").textContent="Obrigado! Sua avaliação foi enviada com sucesso ao Maretório Digital.";
+ }catch(error){q("#evStatus").textContent=error.message||"Falha ao enviar. Tente novamente."}
+ finally{button.disabled=false}
 };
 q("#evExport").onclick=()=>{
  if(!guideResponses.length){q("#evStatus").textContent="Ainda não há respostas para exportar.";return}
