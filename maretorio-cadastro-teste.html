@@ -883,7 +883,7 @@ render();
   e.preventDefault();const button=el("profSend");button.disabled=true;message("Solicitando link de acesso...");
   try{
    const email=el("profEmail").value.trim();
-   const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:"https://mandisuita.github.io/zeladoriaplanetaria/",shouldCreateUser:true}});
+   const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:"https://mandisuita.github.io/zeladoriaplanetaria/maretorio-cadastro-teste.html",shouldCreateUser:true}});
    if(error)throw error;
    message("Se o envio for permitido, você receberá um e-mail com o link de acesso. Confira também o spam.");
   }catch(err){message("Não foi possível solicitar o link: "+err.message)}
